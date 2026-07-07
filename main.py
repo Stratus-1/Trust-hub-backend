@@ -15,6 +15,7 @@ from routers.generate_resolution import router as generate_resolution_router
 from routers.get_all_referrers import router as get_all_referrers_router
 from routers import edit_trust
 from routers import edit_trust_payment
+from routers.contact import router as contact_router
 
 app = FastAPI()
 
@@ -51,6 +52,7 @@ app.include_router(cede_payment.router, prefix="/api", tags=["Cede Payments"])
 app.include_router(loan_agreement_router, tags=["Loan Agreements"])
 app.include_router(lease_agreement_router, tags=["Lease Agreements"])
 app.include_router(generate_resolution_router, tags=["Generate Resolution"])
+app.include_router(contact_router, prefix="/api", tags=["Contact"])
 
 @app.get("/")
 def root():
