@@ -148,9 +148,8 @@ def _pick_template() -> str:
     ))
 
 
-def _prefer_trust_meta(trust_number: str, given_trust_name: Optional[str]) -> tuple[str, Optional[str], Optional[str], str, str]:
-    """Return (trust_name, trust_date, email, establishment_date_1, establishment_date_2) from TrustApplication if present.
-    trust_date prefers establishment_date_2 then establishment_date_1.
+def _prefer_trust_meta(trust_number: str, given_trust_name: Optional[str]) -> tuple[str, Optional[str], str, str]:
+    """Return (trust_name, email, establishment_date_1, establishment_date_2) from TrustApplication if present.
     establishment_date_1 and establishment_date_2 are returned as strings (formatted if possible).
     """
     trust_name = (given_trust_name or '').strip()
