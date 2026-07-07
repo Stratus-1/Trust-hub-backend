@@ -13,7 +13,7 @@ Current stack:
 - DOCX generation via `python-docx` and `docxtpl`
 - PDF conversion via LibreOffice
 - Email via SMTP helpers
-- Deployment target: Render
+- Deployment target: Google Cloud Run (URL: https://trust-hub-backend-service-95969170543.us-central1.run.app)
 - Entrypoint: `main.py`
 
 Local run:
@@ -770,7 +770,7 @@ Separate responsibilities:
 - BTC/XRP/USDT metadata is not consistently persisted for all flows.
 - New trust submit endpoint still validates payment method against old values.
 - Legacy Yoco/card/EFT code creates product confusion.
-- Generated files are written to local disk; Render disk may be ephemeral.
+- Generated files are written to local disk; Cloud Run container disk is ephemeral.
 - Emails run as background tasks in-process; failures are only logged.
 - Duplicate edit lookup endpoints should be consolidated.
 - No formal migrations are present.
