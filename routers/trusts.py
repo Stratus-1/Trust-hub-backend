@@ -373,6 +373,73 @@ async def get_all_trusts():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch trusts from MSSQL: {e}")
 
+# ---- Specific PDF and DOCX download endpoints MUST come before the generic catch-all ----
+from fastapi.responses import Response
+import base64
+
+@router.get("/sql-documents/{trust_number:path}/pdf")
+async def download_pdf(trust_number: str):
+    try:
+        conn = get_mssql_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT trust_deed_pdf_binary
+            FROM TrustApplication
+            WHERE trust_number = ?
+        """, (trust_number,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row or not row[0]:
+            raise HTTPException(status_code=404, detail="PDF not found for trust: " + trust_number)
+
+        return Response(
+            content=row[0],
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"inline; filename={trust_number}.pdf"
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load PDF: {type(e).__name__}: {e}")
+
+
+@router.get("/sql-documents/{trust_number:path}/doc")
+async def download_docx(trust_number: str):
+    try:
+        conn = get_mssql_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT trust_deed_doc_binary
+            FROM TrustApplication
+            WHERE trust_number = ?
+        """, (trust_number,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row or not row[0]:
+            raise HTTPException(status_code=404, detail="DOCX not found for trust: " + trust_number)
+
+        return Response(
+            content=row[0],
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={
+                "Content-Disposition": f"attachment; filename={trust_number}.docx"
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load DOCX: {type(e).__name__}: {e}")
+
+
+# ---- Generic catch-all MUST come AFTER the specific /pdf and /doc routes ----
 @router.get("/sql-documents/{trust_number:path}")
 async def get_sql_documents(trust_number: str):
     try:
@@ -392,76 +459,16 @@ async def get_sql_documents(trust_number: str):
         if not row:
             raise HTTPException(status_code=404, detail="Trust not found in SQL database.")
 
-        import base64
-
         return {
             "trust_number": trust_number,
             "trust_deed_doc_binary": base64.b64encode(row[0]).decode("utf-8") if row[0] else None,
             "trust_deed_pdf_binary": base64.b64encode(row[1]).decode("utf-8") if row[1] else None,
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch documents: {e}")
-
-# ---- New endpoints for PDF and DOCX download ----
-from fastapi.responses import Response
-
-@router.get("/sql-documents/{trust_number:path}/pdf")
-async def download_pdf(trust_number: str):
-    try:
-        conn = get_mssql_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT trust_deed_pdf_binary
-            FROM TrustApplication
-            WHERE trust_number = ?
-        """, (trust_number,))
-        row = cursor.fetchone()
-        cursor.close()
-        conn.close()
-
-        if not row or not row[0]:
-            raise HTTPException(status_code=404, detail="PDF not found.")
-
-        return Response(
-            content=row[0],
-            media_type="application/pdf",
-            headers={
-                "Content-Disposition": f"inline; filename={trust_number}.pdf"
-            }
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to load PDF: {e}")
-
-
-@router.get("/sql-documents/{trust_number:path}/doc")
-async def download_docx(trust_number: str):
-    try:
-        conn = get_mssql_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT trust_deed_doc_binary
-            FROM TrustApplication
-            WHERE trust_number = ?
-        """, (trust_number,))
-        row = cursor.fetchone()
-        cursor.close()
-        conn.close()
-
-        if not row or not row[0]:
-            raise HTTPException(status_code=404, detail="DOCX not found.")
-
-        return Response(
-            content=row[0],
-            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            headers={
-                "Content-Disposition": f"attachment; filename={trust_number}.docx"
-            }
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to load DOCX: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch documents: {type(e).__name__}: {e}")
 
 
 @router.get("/{trust_number:path}")
