@@ -388,7 +388,7 @@ async def submit_trust(
             print(f"[DEBUG] has_paid_val: {has_paid_val}")
             if has_paid_val == "xrp":
                 send_admin_email_with_attachments_xrp(
-                    admin_email="hkftservices@gmail.com",
+                    admin_email="info@trusthub.biz",
                     full_name=full_name,
                     trust_name=formatted_trust_name,
                     docx_path=docx_path,
@@ -415,7 +415,7 @@ async def submit_trust(
                     trust_emails=trust_emails,
                 )
                 send_admin_email_with_attachments(
-                    admin_email="hkftservices@gmail.com",
+                    admin_email="info@trusthub.biz",
                     trust_name=formatted_trust_name,
                     docx_path=docx_path,
                     pdf_path=pdf_path,

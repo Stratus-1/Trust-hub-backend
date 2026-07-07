@@ -38,9 +38,9 @@ async def create_edit_trust_payment_session(trust_number: str, payload: EditTrus
     data = {
         "amount": payload.amount_cents,
         "currency": "ZAR",
-        "successUrl": f"https://hongkongtrust.vercel.app/edit-trust?trust_number={trust_number}",
-        "cancelUrl": "https://hongkongtrust.vercel.app/edit-cancel",
-        "failureUrl": "https://hongkongtrust.vercel.app/edit-failure",
+        "successUrl": f"https://www.trusthub.biz/edit-trust?trust_number={trust_number}",
+        "cancelUrl": "https://www.trusthub.biz/edit-cancel",
+        "failureUrl": "https://www.trusthub.biz/edit-failure",
         "metadata": {
             "trust_number": trust_number,
             "edit_payload": payload.payload

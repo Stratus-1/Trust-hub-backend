@@ -1015,7 +1015,7 @@ async def update_trust_and_regenerate_deed(
                     "signer_email": trust_data.get("signer_email"),
                 }
                 send_admin_email_with_attachments(
-                    admin_email="hkftservices@gmail.com",
+                    admin_email="info@trusthub.biz",
                     trust_name=existing_trust_name,
                     docx_path=docx_path,
                     pdf_path=pdf_path,

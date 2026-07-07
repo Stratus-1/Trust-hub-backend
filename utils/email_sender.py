@@ -63,7 +63,7 @@ def send_trustee_resolution_email(
 
         <p>Yours faithfully,<br>
         <strong>Hong Kong Trust Services</strong><br>
-        <a href="mailto:hkftservices@gmail.com">hkftservices@gmail.com</a></p>
+        <a href="mailto:info@trusthub.biz">info@trusthub.biz</a></p>
 
         <hr style="margin:20px 0; border:none; border-top:1px solid #ccc;"/>
 
@@ -127,15 +127,15 @@ def send_confirmation_email(
 
         <p>
           You may edit your trust by selecting <strong>Edit Trust</strong> at
-          <a href="https://hongkongtrust.vercel.app/" target="_blank" style="color: #1a0dab; text-decoration: underline;">
-            https://hongkongtrust.vercel.app/
+          <a href="https://www.trusthub.biz/" target="_blank" style="color: #1a0dab; text-decoration: underline;">
+            https://www.trusthub.biz/
           </a>.
-          Please note that the deed will need to be signed again and a fee of <strong>R165</strong> will apply.
+          Please note that the deed will need to be signed again and a fee of <strong>USD125</strong> will apply.
         </p>
 
         <p>Yours faithfully,<br>
         <strong>Hong Kong Trust Services</strong><br>
-        <a href="mailto:hkftservices@gmail.com">hkftservices@gmail.com</a></p>
+        <a href="mailto:info@trusthub.biz">info@trusthub.biz</a></p>
 
         <hr style="margin:20px 0; border:none; border-top:1px solid #ccc;"/>
 
@@ -241,15 +241,15 @@ def send_amended_trust_email(
 
         <p>
           You may edit your trust by selecting <strong>Edit Trust</strong> at
-          <a href="https://hongkongtrust.vercel.app/" target="_blank" style="color: #1a0dab; text-decoration: underline;">
-            https://hongkongtrust.vercel.app/
+          <a href="https://www.trusthub.biz/" target="_blank" style="color: #1a0dab; text-decoration: underline;">
+            https://www.trusthub.biz/
           </a>.
           Please note that the deed will need to be signed again and a fee of <strong>R165</strong> will apply.
         </p>
 
         <p>Yours faithfully,<br>
         <strong>Hong Kong Trust Services</strong><br>
-        <a href="mailto:hkftservices@gmail.com">hkftservices@gmail.com</a></p>
+        <a href="mailto:info@trusthub.biz">info@trusthub.biz</a></p>
 
         <hr style="margin:20px 0; border:none; border-top:1px solid #ccc;"/>
 
@@ -393,7 +393,7 @@ def send_admin_email_with_attachments(
         <p>Kindly review and upload the PDF for signing at your earliest convenience.</p>
         <p>Yours faithfully,<br>
         <strong>Hong Kong Trust Services</strong><br>
-        <a href="mailto:hkftservices@gmail.com">hkftservices@gmail.com</a></p>
+        <a href="mailto:info@trusthub.biz">info@trusthub.biz</a></p>
 
         <hr style="margin:20px 0; border:none; border-top:1px solid #ccc;"/>
 
@@ -501,7 +501,7 @@ def send_admin_email_with_attachments_xrp(
         <p>Kindly review and upload the PDF for signing at your earliest convenience.</p>
         <p>Yours faithfully,<br>
         <strong>Hong Kong Trust Services</strong><br>
-        <a href="mailto:hkftservices@gmail.com">hkftservices@gmail.com</a></p>
+        <a href="mailto:info@trusthub.biz">info@trusthub.biz</a></p>
 
         <hr style="margin:20px 0; border:none; border-top:1px solid #ccc;"/>
 
@@ -558,7 +558,7 @@ def send_sale_cede_emails(
     trust_name: str,
     docx_path: str,
     pdf_path: str,
-    admin_email: str = "hkftservices@gmail.com",
+    admin_email: str = "info@trusthub.biz",
     reply_to: Optional[str] = None,
     bcc: Optional[str] = None,
     trust_emails: Optional[Dict[str, str]] = None,
@@ -664,7 +664,7 @@ def send_sale_cede_emails(
 
         <p>Yours faithfully,<br>
         <strong>Hong Kong Trust Services</strong><br>
-        <a href="mailto:hkftservices@gmail.com">hkftservices@gmail.com</a></p>
+        <a href="mailto:info@trusthub.biz">info@trusthub.biz</a></p>
 
         <hr style="margin:20px 0; border:none; border-top:1px solid #ccc;"/>
 
@@ -709,7 +709,7 @@ def send_sale_cede_emails(
        
         <p>Yours faithfully,<br>
         <strong>Hong Kong Trust Services</strong><br>
-        <a href="mailto:hkftservices@gmail.com">hkftservices@gmail.com</a></p>
+        <a href="mailto:info@trusthub.biz">info@trusthub.biz</a></p>
 
         <hr style="margin:20px 0; border:none; border-top:1px solid #ccc;"/>
 

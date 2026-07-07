@@ -522,7 +522,7 @@ async def generate_sale_cede_agreement(
     # Trust emails for template content only (NOT routing)
     trust_emails = {
         'email': recipient_email or '',
-        'admin_email': 'hkftservices@gmail.com',
+        'admin_email': 'info@trusthub.biz',
     }
 
     def _send_emails():
@@ -534,7 +534,7 @@ async def generate_sale_cede_agreement(
                     trust_name=trust_name,
                     docx_path=output_docx,
                     pdf_path=output_pdf,
-                    admin_email='hkftservices@gmail.com',
+                    admin_email='info@trusthub.biz',
                     parties=parties,
                     trust_emails=trust_emails,
                 )

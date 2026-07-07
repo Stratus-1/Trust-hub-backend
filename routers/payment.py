@@ -88,9 +88,9 @@ async def create_payment_session(
     data = {
         "amount": payload.amount_cents,
         "currency": "ZAR",
-        "successUrl": "https://hongkongtrust.vercel.app/success",
-        "cancelUrl": "https://hongkongtrust.vercel.app/cancel",
-        "failureUrl": "https://hongkongtrust.vercel.app/failure",
+        "successUrl": "https://www.trusthub.biz/success",
+        "cancelUrl": "https://www.trusthub.biz/cancel",
+        "failureUrl": "https://www.trusthub.biz/failure",
         "metadata": {
             "trust_id": trust_id
         }
