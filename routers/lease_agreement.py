@@ -15,16 +15,16 @@ async def generate_lease_agreement(data: dict):
     today = date.today().strftime("%d %B %Y")
 
     merge_fields = {
-        "trust_name": data.get("trust_name", ""),
-        "trust_number": data.get("trust_number", ""),
-        "owner_name": data.get("owner_name", ""),
-        "owner_id": data.get("owner_id", ""),
-        "signer_name": data.get("signer_name", ""),
-        "Property_Address": data.get("Property_Address", ""),
-        "witness_name": data.get("witness_name", ""),
-        "witness_id": data.get("witness_id", ""),
-        "establishment_date_1": data.get("establishment_date_1", today),
-        "establishment_date_2": data.get("establishment_date_2", today)
+        "trust_name": data.get("trust_name") or "",
+        "trust_number": data.get("trust_number") or "",
+        "owner_name": data.get("owner_name") or "",
+        "owner_id": data.get("owner_id") or "",
+        "signer_name": data.get("signer_name") or "",
+        "Property_Address": data.get("Property_Address") or data.get("property_address") or "",
+        "witness_name": data.get("witness_name") or "",
+        "witness_id": data.get("witness_id") or "",
+        "establishment_date_1": data.get("establishment_date_1") or today,
+        "establishment_date_2": data.get("establishment_date_2") or today
     }
 
     def merge(doc_obj):

@@ -19,9 +19,15 @@ async def generate_resolution(request: Request):
     if missing_fields:
         raise HTTPException(status_code=400, detail=f"Missing required fields: {', '.join(missing_fields)}")
 
-    # Default trustee names to empty strings
+    # Ensure all None/null values are mapped to empty strings
+    for key, val in list(trust.items()):
+        if val is None:
+            trust[key] = ""
+
+    # Default trustee names to empty strings if not present
     for key in ['trustee1_name', 'trustee2_name', 'trustee3_name', 'trustee4_name']:
-        trust[key] = trust.get(key, "")
+        if key not in trust:
+            trust[key] = ""
 
     # Choose template
     trustee_count = sum(1 for k in ['trustee1_name', 'trustee2_name', 'trustee3_name', 'trustee4_name'] if trust.get(k))
