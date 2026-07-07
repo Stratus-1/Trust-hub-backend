@@ -47,8 +47,8 @@ COPY . .
 # Step 6: Create uploads directory for serving documents
 RUN mkdir -p /app/uploads
 
-# Step 7: Expose FastAPI app port
+# Step 7: Expose FastAPI app port (ignored by Cloud Run, but good for local/documentative purposes)
 EXPOSE 8000
 
-# Step 8: Start FastAPI app using Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Step 8: Start FastAPI app using Uvicorn, respecting the PORT env var for Cloud Run
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
