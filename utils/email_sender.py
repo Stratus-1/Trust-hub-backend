@@ -5,6 +5,7 @@ from email.message import EmailMessage
 from dotenv import load_dotenv
 import mimetypes
 from typing import Optional, List, Dict, Union
+import contextlib
 
 # FastAPI dependency injection for authentication
 from fastapi import Depends
@@ -20,6 +21,22 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+
+@contextlib.contextmanager
+def get_smtp_connection():
+    if EMAIL_PORT == 465:
+        server = smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORT)
+    else:
+        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+        server.starttls()
+    try:
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        yield server
+    finally:
+        try:
+            server.quit()
+        except Exception:
+            pass
 
 
 # --- New: Trustee Resolution Email Function ---
@@ -71,9 +88,7 @@ def send_trustee_resolution_email(
     logging.info("ℹ️ Skipping DOCX attachment for user email (trustee resolution)")
 
     try:
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as smtp:
-            smtp.starttls()
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        with get_smtp_connection() as smtp:
             smtp.send_message(msg)
             logging.info("✅ Trustee resolution email sent successfully to %s", to_email)
     except Exception as e:
@@ -182,9 +197,7 @@ def send_confirmation_email(
     logging.info("ℹ️ Skipping PDF attachment for user confirmation email")
 
     try:
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as smtp:
-            smtp.starttls()
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        with get_smtp_connection() as smtp:
             smtp.send_message(msg)
             logging.info("✅ Email sent successfully to %s", to_email)
     except Exception as e:
@@ -316,9 +329,7 @@ def send_amended_trust_email(
     logging.info("ℹ️ Skipping PDF attachment for amended deed user email")
 
     try:
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as smtp:
-            smtp.starttls()
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        with get_smtp_connection() as smtp:
             smtp.send_message(msg)
             logging.info("✅ Amended deed email sent to %s (cc: %s)", to_email, cc_email or "-")
     except Exception as e:
@@ -425,9 +436,7 @@ def send_admin_email_with_attachments(
         logging.warning("⚠️ Failed to attach PDF: %s", e)
 
     try:
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as smtp:
-            smtp.starttls()
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        with get_smtp_connection() as smtp:
             smtp.send_message(msg)
             logging.info("✅ Admin email sent successfully to %s", admin_email)
     except Exception as e:
@@ -535,9 +544,7 @@ def send_admin_email_with_attachments_xrp(
         logging.warning("⚠️ Failed to attach PDF: %s", e)
 
     try:
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as smtp:
-            smtp.starttls()
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        with get_smtp_connection() as smtp:
             smtp.send_message(msg)
             logging.info("✅ XRP confirmation email sent successfully to %s", admin_email)
     except Exception as e:
@@ -746,9 +753,7 @@ def send_sale_cede_emails(
 
     # Send emails (reuse a single SMTP connection if possible)
     try:
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as smtp:
-            smtp.starttls()
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        with get_smtp_connection() as smtp:
             if client_msg is not None:
                 smtp.send_message(client_msg)
                 logging.info("✅ Sale & Cede client email sent to %s", client_email)
