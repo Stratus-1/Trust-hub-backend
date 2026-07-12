@@ -1,5 +1,63 @@
+import os
 from docxtpl import DocxTemplate
 from io import BytesIO
+
+# Slot -> template file. This stands in for the "Admin → Templates bucket" lookup
+# until template files are managed outside the repo; slots without a file on disk
+# still resolve (so callers get a clear error) rather than KeyError.
+TEMPLATES = {
+    "deed_2t_settlor_is_trustee": "templates/_HKGFT Deed 2 Trustees Same settlor.docx",
+    "deed_2t_settlor_not_trustee": "templates/_HKGFT Deed 2 Trustees.docx",
+    "deed_3t_settlor_is_trustee": "templates/_HKGFT Deed 3 Trustees same Settlor.docx",
+    "deed_3t_settlor_not_trustee": "templates/_HKGFT Deed 3 Trustees.docx",
+    "deed_4t_settlor_is_trustee": "templates/_HKGFT Deed 4 Trustees Same settlor.docx",
+    "deed_4t_settlor_not_trustee": "templates/_HKGFT Deed 4 Trustees.docx",
+    "deed_relinquished_1t": "templates/_HKGFT Deed Relinquished 1 Trustee.docx",
+}
+
+
+def resolve_template_slot(fields: dict) -> str:
+    # Frontend hint takes priority over everything else.
+    slot = fields.get("template_slot")
+    if slot:
+        return slot
+
+    if fields.get("control_mode") == "relinquish":
+        return "deed_relinquished_1t"
+
+    # Legacy fallback: derive trustee_count / settlor_is_trustee from the raw
+    # trusteeN_name / settlor_name fields when the caller hasn't sent them explicitly.
+    trustee_count = fields.get("trustee_count")
+    if trustee_count in (None, ""):
+        n = sum(1 for i in range(1, 5) if (fields.get(f"trustee{i}_name") or "").strip())
+    else:
+        n = int(trustee_count)
+
+    settlor_is_trustee = fields.get("settlor_is_trustee")
+    if settlor_is_trustee in (None, ""):
+        settlor_name = (fields.get("settlor_name") or "").strip().upper()
+        trustee_names = {
+            (fields.get(f"trustee{i}_name") or "").strip().upper()
+            for i in range(1, 5) if fields.get(f"trustee{i}_name")
+        }
+        sit = bool(settlor_name) and settlor_name in trustee_names
+    else:
+        sit = str(settlor_is_trustee).strip().lower() == "true"
+
+    return f"deed_{max(2, n)}t_{'settlor_is_trustee' if sit else 'settlor_not_trustee'}"
+
+
+def resolve_template_path(fields: dict) -> str:
+    slot = resolve_template_slot(fields)
+    path = TEMPLATES.get(slot)
+    if path is None:
+        raise FileNotFoundError(f"No template registered for slot '{slot}'.")
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            f"Template for slot '{slot}' is not yet available — expected file at '{path}'."
+        )
+    return path
+
 
 def generate_trust_docx(
     data: dict,
@@ -40,25 +98,8 @@ def generate_trust_docx(
     }
 
 
-    # Determine which template to use
-    trustees = [(data.get(f"trustee{i}_name") or "").strip().upper() for i in range(1, 5) if data.get(f"trustee{i}_name")]
-    settlor_name = (data.get("settlor_name") or "").strip().upper()
-
-    if len(trustees) == 2:
-        # 2 Trustees: choose based on whether settlor is one of the trustees
-        if settlor_name in trustees:
-            template_path = "templates/_HKGFT Deed 2 Trustees Same settlor.docx"
-        else:
-            template_path = "templates/_HKGFT Deed 2 Trustees.docx"
-    elif len(trustees) == 3:
-        # 3 Trustees: choose based on whether settlor is one of the trustees
-        if settlor_name in trustees:
-            template_path = "templates/_HKGFT Deed 3 Trustees same Settlor.docx"
-        else:
-            template_path = "templates/_HKGFT Deed 3 Trustees.docx"
-    elif not template_path:
-        # Fallback default if not specified
-        template_path = "templates/_HKGFT Deed 2 Trustees.docx"
+    if not template_path:
+        template_path = resolve_template_path(data)
 
     doc = DocxTemplate(template_path)
 

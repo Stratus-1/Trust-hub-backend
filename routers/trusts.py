@@ -700,6 +700,10 @@ class TrustEditPayload(BaseModel):
     signer_id: Optional[str] = None
     signer_email: Optional[str] = None
     Property_Address: Optional[str] = None
+    template_slot: Optional[str] = None
+    control_mode: Optional[str] = None
+    trustee_count: Optional[str] = None
+    settlor_is_trustee: Optional[str] = None
 
 
 @router.post("/edit-trust/lookup")
@@ -854,7 +858,11 @@ async def update_trust_and_regenerate_deed(
                       "signer_name": getattr(payload, "signer_name", None),
                       "signer_id": getattr(payload, "signer_id", None),
                       "signer_email": getattr(payload, "signer_email", None),
-                      "Property_Address": getattr(payload, "Property_Address", None)}
+                      "Property_Address": getattr(payload, "Property_Address", None),
+                      "template_slot": getattr(payload, "template_slot", None),
+                      "control_mode": getattr(payload, "control_mode", None),
+                      "trustee_count": getattr(payload, "trustee_count", None),
+                      "settlor_is_trustee": getattr(payload, "settlor_is_trustee", None)}
 
         # Add extra optional fields if present
 
@@ -873,35 +881,19 @@ async def update_trust_and_regenerate_deed(
             trust_data[f"trustee{idx}_name"] = ""
             trust_data[f"trustee{idx}_id"] = ""
 
-        # Determine if first trustee is the same as the settlor (supports model or dict)
-        first_trustee = trustees_list[0] if trustees_list else None
-        ft_name = getattr(first_trustee, "name", None)
-        ft_id = getattr(first_trustee, "id", None)
-        if (ft_name is None or ft_id is None) and isinstance(first_trustee, dict):
-            ft_name = first_trustee.get("name")
-            ft_id = first_trustee.get("id")
-        same_as_settlor = (
-            ((payload.settlor_name or "").strip().lower() == (ft_name or "").strip().lower()) and
-            ((payload.settlor_id or "").strip() == (ft_id or "").strip())
-        )
-        tcount = len(trustees_list)
-        if tcount == 2:
-            template = "_HKGFT Deed 2 Trustees Same settlor.docx" if same_as_settlor else "_HKGFT Deed 2 Trustees.docx"
-        elif tcount == 3:
-            template = "_HKGFT Deed 3 Trustees same Settlor.docx" if same_as_settlor else "_HKGFT Deed 3 Trustees.docx"
-        elif tcount == 4:
-            template = "_HKGFT Deed 4 Trustees Same settlor.docx" if same_as_settlor else "_HKGFT Deed 4 Trustees.docx"
-        else:
-            cursor.close()
-            conn.close()
-            raise HTTPException(status_code=400, detail="Unsupported number of trustees.")
-
         # 5) Generate new DOCX & PDF into a stable folder based on trust name
+        # Template slot is resolved from trust_data (template_slot hint, control_mode,
+        # or derived trustee_count/settlor_is_trustee) by generate_trust_docx itself.
         safe_folder_name = sanitize_filename(existing_trust_name)
         upload_dir = f"uploads/{safe_folder_name}"
         os.makedirs(upload_dir, exist_ok=True)
         docx_path = os.path.join(upload_dir, f"{safe_folder_name}_AMENDED.docx")
-        generate_trust_docx(trust_data, template_path=f"templates/{template}", output_path=docx_path)
+        try:
+            generate_trust_docx(trust_data, output_path=docx_path)
+        except FileNotFoundError as e:
+            cursor.close()
+            conn.close()
+            raise HTTPException(status_code=500, detail=str(e))
         wait_for_file(docx_path, timeout=15)
 
         try:

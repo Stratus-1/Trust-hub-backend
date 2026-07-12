@@ -42,6 +42,10 @@ class SubmitTrustRequest(BaseModel):
     payment_xrp_qty: Optional[float] = None
     payment_xrp_trans_id: Optional[str] = None
     was_referred_by_member: bool = False
+    template_slot: Optional[str] = None
+    control_mode: Optional[str] = None
+    trustee_count: Optional[str] = None
+    settlor_is_trustee: Optional[str] = None
 
 from database import get_mssql_connection
 from utils.document_creator import generate_trust_docx
@@ -106,6 +110,10 @@ async def submit_trust(
     payment_xrp_trans_id: Optional[str] = Form(None),
     documents: List[UploadFile] = File(default=[]),
     was_referred_by_member: bool = Form(False),
+    template_slot: Optional[str] = Form(None),
+    control_mode: Optional[str] = Form(None),
+    trustee_count: Optional[str] = Form(None),
+    settlor_is_trustee: Optional[str] = Form(None),
 ):
 
     trust_prefix = 3200
@@ -239,6 +247,10 @@ async def submit_trust(
         "email_sent": False,
         "documents": file_paths[:],
         "was_referred_by_member": was_referred_by_member,
+        "template_slot": template_slot,
+        "control_mode": control_mode,
+        "trustee_count": trustee_count,
+        "settlor_is_trustee": settlor_is_trustee,
     }
 
     if payment_method and payment_method.lower() == "xrp":
@@ -252,11 +264,11 @@ async def submit_trust(
         trust_data["payment_amount_xrp"] = None
         trust_data["payment_xrp_trans_id"] = None
 
-    # No trustee parsing or template selection logic needed.
     docx_path = os.path.join(upload_dir, f"{safe_folder_name}.docx")
-    # Use a default template (since template selection logic is now removed)
-    template = "_HKGFT Deed 3 Trustees.docx"
-    generate_trust_docx(trust_data, template_path=f"templates/{template}", output_path=docx_path)
+    try:
+        generate_trust_docx(trust_data, output_path=docx_path)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=500, detail=str(e))
     wait_for_file(docx_path, timeout=10)
 
     try:
